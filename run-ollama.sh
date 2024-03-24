@@ -2,31 +2,45 @@
 
 usage () {
 	echo "Usage: $0 [-m model] [-d directory] [-h]"
-	echo "  -m MODEL        Specify the ollama model to use                 (default: llama2:13b)"
-	echo "  -d DIRECTORY    Specify the directory for the model to read."
-	echo "  -h              Show this help message."
+	echo "  -m, --model     MODEL        Specify the ollama model to use                 (default: llama2:13b)"
+	echo "  -d, --directory DIRECTORY    Specify the directory for the model to read."
+	echo "  -h, --help                   Show this help message."
 }
+
+SHORT="m:d:h"
+LONG="model:,directory:,help"
+PARSED=$(getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@")
+
+if [[ $? -ne 0 ]]; then
+    exit 2
+fi
+
+eval set -- "$PARSED"
 
 model="llama2:13b"
 directory=""
-show_help=0
 
-while getopts "m:d:h" opt; do
-    case ${opt} in
-        m )
-            model=$OPTARG
+while true; do
+    case "$1" in
+        -m|--model)
+            model="$2"
+            shift 2
             ;;
-		d )
-            directory=$OPTARG
+        -d|--directory)
+            directory="$2"
+            shift 2
             ;;
-        h )
+        -h|--help)
             usage
             exit 0
             ;;
-        \? ) # Invalid option or missing argument
-            echo "Invalid option or missing argument."
-            usage
-            exit 1
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Error"
+            exit 3
             ;;
     esac
 done
@@ -37,7 +51,7 @@ if [ -z "$directory" ]; then
     exit 1
 fi
 
-echo "Model: $model"
+echo "Model:     $model"
 echo "Directory: $directory"
 
 sudo systemctl start docker
