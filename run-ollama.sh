@@ -7,6 +7,11 @@ usage () {
 	echo "  -h, --help                   Show this help message."
 }
 
+error_handler() {
+    echo "Killing docker..."
+    sudo docker rm -f ollama
+}
+
 SHORT="m:d:h"
 LONG="model:,directory:,help"
 PARSED=$(getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@")
@@ -51,6 +56,8 @@ if [ -z "$directory" ]; then
     exit 1
 fi
 
+trap error_handler ERR
+
 echo "Model:     $model"
 echo "Directory: $directory"
 
@@ -67,4 +74,5 @@ response=$(curl -s -X POST http://localhost:11434/api/generate -d '{
 
 echo "$response" | jq -r '.response'
 
+echo ""
 sudo docker rm -f ollama
