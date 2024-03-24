@@ -74,6 +74,24 @@ response=$(curl -s -X POST http://localhost:${PORT}/api/generate -d '{
 }')
 
 echo "$response" | jq -r '.response'
+echo ""
+
+while true; do
+    read -p "Prompt: " prompt
+
+    if [[ "$prompt" == "exit" ]]; then
+        break
+    fi
+
+    response=$(curl -s -X POST http://localhost:${PORT}/api/generate -d '{
+      "model": "'"$model"'",
+      "prompt": "'"$prompt"'",
+      "stream": false
+    }')
+
+    echo "$response" | jq -r '.response'
+    echo ""
+done
 
 echo ""
 sudo docker rm -f ollama
