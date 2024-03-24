@@ -17,3 +17,9 @@ sudo docker run -d --gpus=all -v ollama:/root/.ollama -p 11434:11434 --name olla
 ```
 
 This is only tested on my personal computer, which uses **Arch Linux**. It is not tested for any other operating system.
+
+# Dependencies
+Known dependencies:
+- ollama
+- docker
+- jq
