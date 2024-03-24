@@ -3,7 +3,7 @@
 usage () {
 	echo "Usage: $0 [-m model] [-d directory] [-h]"
 	echo "  -m, --model     MODEL        Specify the ollama model to use                 (default: llama2:13b)"
-	echo "  -d, --directory DIRECTORY    Specify the directory for the model to read."
+	echo "  -d, --directory DIRECTORY    Specify the directory for the model to read.    (must be absolute path)"
 	echo "  -h, --help                   Show this help message."
 }
 
@@ -39,7 +39,7 @@ while true; do
             break
             ;;
         *)
-            echo "Error"
+            echo "An unknown error has occured."
             exit 3
             ;;
     esac
@@ -56,6 +56,15 @@ echo "Directory: $directory"
 
 sudo systemctl start docker
 docker run -d --device /dev/kfd --device /dev/dri -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama:rocm
-sudo docker exec -it ollama ollama run $model
+sudo docker exec -d ollama ollama run $model 
+
+prompt="Why is the sky blue?"
+response=$(curl -s -X POST http://localhost:11434/api/generate -d '{
+  "model": "'"$model"'",
+  "prompt": "'"$prompt"'",
+  "stream": false
+}')
+
+echo "$response" | jq -r '.response'
 
 sudo docker rm -f ollama
